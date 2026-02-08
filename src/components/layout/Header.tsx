@@ -13,43 +13,44 @@ interface HeaderProps extends React.HTMLAttributes<HTMLElement> {
 export function Header({
     className,
     title = "Tutor",
-    subtitle = "AI Tutor Dashboard",
+    subtitle = "AI Dashboard",
     ...props
 }: HeaderProps) {
     return (
         <header
             className={cn(
-                "sticky top-0 z-[100] w-full border-b border-border/40 bg-background/60 backdrop-blur-xl",
-                "px-6 py-3 flex items-center justify-between transition-all duration-300",
+                "sticky top-0 z-[100] w-full border-b border-gray-100 bg-white/70 backdrop-blur-xl",
+                "px-8 py-4 flex items-center justify-between transition-all duration-300",
                 className
             )}
             {...props}
         >
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-6">
+                <div className="relative group flex items-center justify-center">
+                    <div className="absolute inset-0 bg-green-400/10 blur-2xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
+                    <div className="p-2.5 bg-gray-50 rounded-2xl border border-gray-100 shadow-sm transition-all duration-300 group-hover:border-green-100 group-hover:bg-white group-hover:scale-105 active:scale-95 relative overflow-hidden">
+                        <Image
+                            src="/Octo-Icon.svg"
+                            alt="Tambo Icon"
+                            width={22}
+                            height={22}
+                            className="relative opacity-90 group-hover:opacity-100 grayscale group-hover:grayscale-0 transition-all duration-500"
+                        />
+                    </div>
+                </div>
                 <div className="flex flex-col">
-                    <h1 className="text-lg font-semibold tracking-tight text-foreground/90 leading-tight">
+                    <h1 className="text-[15px] font-medium tracking-tight text-gray-900 leading-none">
                         {title}
                     </h1>
                     {subtitle && (
-                        <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground/60 mt-0.5">
+                        <p className="text-[10px] uppercase tracking-[0.2em] font-semibold text-gray-400/80 mt-1.5">
                             {subtitle}
                         </p>
                     )}
                 </div>
             </div>
 
-            <div className="flex items-center gap-4">
-                <div className="relative group p-1 rounded-full hover:bg-muted/50 transition-colors">
-                    <div className="absolute inset-0 bg-[#7FFFC3]/10 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                    <Image
-                        src="/Octo-Icon.svg"
-                        alt="Tambo Icon"
-                        width={28}
-                        height={28}
-                        className="relative rounded-md hover:scale-110 transition-transform duration-300 ease-out grayscale hover:grayscale-0 opacity-80 hover:opacity-100"
-                    />
-                </div>
-            </div>
+
         </header>
     );
 }

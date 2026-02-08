@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { createSession, getStudents, getCourses } from '@/app/actions/tutor'
+import { createSession, updateSession, getStudents, getCourses } from '@/app/actions/tutor'
 import { Loader2 } from 'lucide-react'
 import { useTamboComponentState } from '@tambo-ai/react'
 import { useState, useEffect } from 'react'
@@ -12,6 +12,7 @@ const optionSchema = z.object({
 
 export const createSessionFormSchema = z.object({
     defaultValues: z.object({
+        id: z.string().optional(),
         course_id: z.string().optional(),
         student_id: z.string().optional(),
         start_time: z.string().optional(),
@@ -95,7 +96,14 @@ export function CreateSessionForm({ defaultValues }: z.infer<typeof createSessio
             const startIso = new Date(start_time).toISOString();
             const endIso = new Date(end_time).toISOString();
 
-            await createSession({ course_id, student_id, start_time: startIso, end_time: endIso, topic })
+            if (defaultValues?.id) {
+                await updateSession({
+                    id: defaultValues.id,
+                    patch: { course_id, student_id, start_time: startIso, end_time: endIso, topic }
+                })
+            } else {
+                await createSession({ course_id, student_id, start_time: startIso, end_time: endIso, topic })
+            }
             setSuccess(true)
         } catch (err) {
             setError(err instanceof Error ? err.message : 'An error occurred')
@@ -107,7 +115,7 @@ export function CreateSessionForm({ defaultValues }: z.infer<typeof createSessio
     if (success) {
         return (
             <div className="p-4 rounded-md bg-green-50 text-green-700 border border-green-200">
-                <p className="font-medium">Session successfully scheduled!</p>
+                <p className="font-medium">Session successfully {defaultValues?.id ? "updated" : "scheduled"}!</p>
                 <button
                     onClick={() => setSuccess(false)}
                     className="mt-2 text-sm underline hover:text-green-800"
@@ -120,7 +128,7 @@ export function CreateSessionForm({ defaultValues }: z.infer<typeof createSessio
 
     return (
         <form action={handleSubmit} className="space-y-4 p-4 border rounded-md bg-white shadow-sm">
-            <h3 className="text-lg font-medium">Schedule Session</h3>
+            <h3 className="text-lg font-medium">{defaultValues?.id ? "Edit Session" : "Schedule Session"}</h3>
 
             {error && (
                 <div className="p-3 text-sm text-red-500 bg-red-50 rounded-md">
@@ -225,7 +233,7 @@ export function CreateSessionForm({ defaultValues }: z.infer<typeof createSessio
                 className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 w-full bg-black text-white"
             >
                 {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                Schedule Session
+                {defaultValues?.id ? "Save Changes" : "Schedule Session"}
             </button>
         </form>
     )

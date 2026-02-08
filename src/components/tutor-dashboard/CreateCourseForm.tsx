@@ -2,15 +2,16 @@
 
 import * as React from "react"
 import { z } from "zod"
-import { createCourse } from "@/app/actions/tutor"
+import { createCourse, updateCourse } from "@/app/actions/tutor"
 import { Loader2 } from "lucide-react"
 import { useTamboComponentState } from "@tambo-ai/react"
 
-/* ----------------------------------
- * Schema
+/**
+ * Zod Schema for Tambo integration
  * ---------------------------------- */
 export const createCourseFormSchema = z.object({
     defaultValues: z.object({
+        id: z.string().optional(),
         title: z.string(),
         description: z.string(),
         hourly_rate: z.number(),
@@ -31,7 +32,7 @@ export function CreateCourseForm({
         {
             title: defaultValues?.title ?? "",
             description: defaultValues?.description ?? "",
-            hourly_rate: defaultValues?.hourly_rate ?? null,
+            hourly_rate: defaultValues?.hourly_rate ?? 0,
         },
         defaultValues,
     )
@@ -56,11 +57,22 @@ export function CreateCourseForm({
                 throw new Error("Title is required")
             }
 
-            await createCourse({
-                title: formState?.title?.trim(),
-                description: formState?.description?.trim() || undefined,
-                hourly_rate: formState?.hourly_rate ?? undefined,
-            })
+            if (defaultValues?.id) {
+                await updateCourse({
+                    id: defaultValues.id,
+                    patch: {
+                        title: formState?.title?.trim(),
+                        description: formState?.description?.trim() || null,
+                        hourly_rate: formState?.hourly_rate ?? null,
+                    }
+                })
+            } else {
+                await createCourse({
+                    title: formState?.title?.trim(),
+                    description: formState?.description?.trim() || undefined,
+                    hourly_rate: formState?.hourly_rate ?? undefined,
+                })
+            }
 
             setSuccess(true)
         } catch (err) {
@@ -78,7 +90,7 @@ export function CreateCourseForm({
     if (success) {
         return (
             <div className="p-4 rounded-md bg-green-50 text-green-700 border border-green-200">
-                <p className="font-medium">Course successfully created!</p>
+                <p className="font-medium">Course successfully {defaultValues?.id ? "updated" : "created"}!</p>
                 <button
                     onClick={() => {
                         setSuccess(false)
@@ -104,7 +116,7 @@ export function CreateCourseForm({
             action={handleSubmit}
             className="space-y-4 p-4 border rounded-md bg-white shadow-sm"
         >
-            <h3 className="text-lg font-medium">Create New Course</h3>
+            <h3 className="text-lg font-medium">{defaultValues?.id ? "Edit Course" : "Create New Course"}</h3>
 
             {error && (
                 <div className="p-3 text-sm text-red-500 bg-red-50 rounded-md">
@@ -121,7 +133,7 @@ export function CreateCourseForm({
                         setFormState({
                             title: e.target.value,
                             description: formState?.description ?? "",
-                            hourly_rate: formState?.hourly_rate ?? null
+                            hourly_rate: formState?.hourly_rate ?? 0
                         })
                     }
                     placeholder="Introduction to React"
@@ -138,7 +150,7 @@ export function CreateCourseForm({
                         setFormState({
                             title: formState?.title ?? "",
                             description: e.target.value,
-                            hourly_rate: formState?.hourly_rate ?? null
+                            hourly_rate: formState?.hourly_rate ?? 0
                         })
                     }
                     placeholder="Course details..."
@@ -157,7 +169,7 @@ export function CreateCourseForm({
                         setFormState({
                             title: formState?.title ?? "",
                             description: formState?.description ?? "",
-                            hourly_rate: e.target.value === "" ? null : Number(e.target.value),
+                            hourly_rate: e.target.value === "" ? 0 : Number(e.target.value),
                         })
                     }
                     placeholder="50.00"
@@ -173,7 +185,7 @@ export function CreateCourseForm({
                 {loading && (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin inline" />
                 )}
-                Create Course
+                {defaultValues?.id ? "Save Changes" : "Create Course"}
             </button>
         </form>
     )

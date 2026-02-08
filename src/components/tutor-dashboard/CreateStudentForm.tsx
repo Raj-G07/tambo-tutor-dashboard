@@ -1,11 +1,12 @@
 import { z } from 'zod'
-import { createStudent } from '@/app/actions/tutor'
+import { createStudent, updateStudent } from '@/app/actions/tutor'
 import { Loader2 } from 'lucide-react'
 import { useTamboComponentState } from '@tambo-ai/react'
 import { useState } from 'react';
 
 export const createStudentFormSchema = z.object({
     defaultValues: z.object({
+        id: z.string().optional(),
         full_name: z.string().optional(),
         email: z.string().optional(),
         grade_level: z.string().optional(),
@@ -46,7 +47,14 @@ export function CreateStudentForm({ defaultValues }: z.infer<typeof createStuden
                 throw new Error('Full Name is required')
             }
 
-            await createStudent({ full_name, email, grade_level, notes })
+            if (defaultValues?.id) {
+                await updateStudent({
+                    id: defaultValues.id,
+                    patch: { full_name, email, grade_level, notes }
+                })
+            } else {
+                await createStudent({ full_name, email, grade_level, notes })
+            }
             setSuccess(true)
         } catch (err) {
             setError(err instanceof Error ? err.message : 'An error occurred')
@@ -58,7 +66,7 @@ export function CreateStudentForm({ defaultValues }: z.infer<typeof createStuden
     if (success) {
         return (
             <div className="p-4 rounded-md bg-green-50 text-green-700 border border-green-200">
-                <p className="font-medium">Student successfully created!</p>
+                <p className="font-medium">Student successfully {defaultValues?.id ? "updated" : "created"}!</p>
                 <button
                     onClick={() => setSuccess(false)}
                     className="mt-2 text-sm underline hover:text-green-800"
@@ -71,7 +79,7 @@ export function CreateStudentForm({ defaultValues }: z.infer<typeof createStuden
 
     return (
         <form action={handleSubmit} className="space-y-4 p-4 border rounded-md bg-white shadow-sm">
-            <h3 className="text-lg font-medium">Add New Student</h3>
+            <h3 className="text-lg font-medium">{defaultValues?.id ? "Edit Student" : "Add New Student"}</h3>
 
             {error && (
                 <div className="p-3 text-sm text-red-500 bg-red-50 rounded-md">
@@ -131,7 +139,7 @@ export function CreateStudentForm({ defaultValues }: z.infer<typeof createStuden
                 className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 w-full bg-black text-white"
             >
                 {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                Create Student
+                {defaultValues?.id ? "Save Changes" : "Create Student"}
             </button>
         </form>
     )

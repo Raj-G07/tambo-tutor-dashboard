@@ -99,7 +99,7 @@ export const tools: TamboTool[] = [
         key: s.id,
         type: "text",
         text: `🕒 ${s.course?.title ?? "Session"} with ${s.student?.full_name ?? "Unknown"
-          } — ${s.status}`,
+          } — ${s.status} with start_time: ${s.start_time} and end_time: ${s.end_time}`,
       })),
   },
   {

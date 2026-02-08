@@ -17,6 +17,9 @@ import { SessionsView } from "@/components/tutor-dashboard/SessionsView";
 
 import { Header } from "@/components/layout/Header";
 
+import { BookOpen, Users, CalendarDays } from "lucide-react";
+import { Tooltip, TooltipProvider } from "@/components/tambo/suggestions-tooltip";
+
 export default function Home() {
   const mcpServers = useMcpServers();
   const [activeTab, setActiveTab] = React.useState("courses");
@@ -33,49 +36,73 @@ export default function Home() {
         userPage: currentPageContextHelper,
       }}
     >
-      <div className="flex flex-col h-screen overflow-hidden">
-        <Header />
+      <TooltipProvider>
+        <div className="flex flex-col h-screen overflow-hidden bg-white">
+          <Header />
 
-        {/* Full viewport layout */}
-        <main className="flex flex-1 overflow-hidden bg-gray-50/50">
+          {/* Full viewport layout */}
+          <main className="flex flex-1 overflow-hidden">
 
-          {/* Main Dashboard Area */}
-          <div className="flex-1 overflow-y-auto p-6 space-y-6">
+            {/* Main Dashboard Area */}
+            <div className="flex-1 overflow-y-auto p-8 space-y-8 bg-gray-50/30">
 
+              {/* Icon Navigation */}
+              <div className="flex items-center justify-between">
+                <Tabs value={activeTab} onValueChange={setActiveTab}>
+                  <TabsList className="bg-white border border-gray-100 p-1.5 h-12 rounded-2xl shadow-sm gap-1">
+                    <Tooltip content="Courses" side="bottom">
+                      <TabsTrigger
+                        value="courses"
+                        className="rounded-xl px-4 py-2 text-gray-400 data-[state=active]:text-green-600 data-[state=active]:bg-green-50/50 transition-all duration-300"
+                      >
+                        <BookOpen className="w-[18px] h-[18px]" strokeWidth={2.2} />
+                      </TabsTrigger>
+                    </Tooltip>
+                    <Tooltip content="Students" side="bottom">
+                      <TabsTrigger
+                        value="students"
+                        className="rounded-xl px-4 py-2 text-gray-400 data-[state=active]:text-green-600 data-[state=active]:bg-green-50/50 transition-all duration-300"
+                      >
+                        <Users className="w-[18px] h-[18px]" strokeWidth={2.2} />
+                      </TabsTrigger>
+                    </Tooltip>
+                    <Tooltip content="Sessions" side="bottom">
+                      <TabsTrigger
+                        value="sessions"
+                        className="rounded-xl px-4 py-2 text-gray-400 data-[state=active]:text-green-600 data-[state=active]:bg-green-50/50 transition-all duration-300"
+                      >
+                        <CalendarDays className="w-[18px] h-[18px]" strokeWidth={2.2} />
+                      </TabsTrigger>
+                    </Tooltip>
+                  </TabsList>
+                </Tabs>
+              </div>
 
-            {/* Tabs (state only, no content) */}
-            <Tabs value={activeTab} onValueChange={setActiveTab}>
-              <TabsList className="grid w-[300px] grid-cols-3 rounded-xl">
-                <TabsTrigger value="courses" className="rounded-xl hover:text-black">Courses</TabsTrigger>
-                <TabsTrigger value="students" className="rounded-xl hover:text-black">Students</TabsTrigger>
-                <TabsTrigger value="sessions" className="rounded-xl hover:text-black">Sessions</TabsTrigger>
-              </TabsList>
-            </Tabs>
+              {/* Views (CSS hide/show, NOT mount/unmount) */}
+              <div className={activeTab === "courses" ? "block" : "hidden"}>
+                <CoursesView isActive={activeTab === "courses"} />
+              </div>
 
-            {/* Views (CSS hide/show, NOT mount/unmount) */}
-            <div className={activeTab === "courses" ? "block" : "hidden"}>
-              <CoursesView isActive={activeTab === "courses"} />
+              <div className={activeTab === "students" ? "block" : "hidden"}>
+                <StudentsView isActive={activeTab === "students"} />
+              </div>
+
+              <div className={activeTab === "sessions" ? "block" : "hidden"}>
+                <SessionsView isActive={activeTab === "sessions"} />
+              </div>
+
             </div>
 
-            <div className={activeTab === "students" ? "block" : "hidden"}>
-              <StudentsView isActive={activeTab === "students"} />
+            {/* Right Sidebar - Chat */}
+            <div className="w-[400px] border-l bg-white flex flex-col">
+              <div className="flex-1 overflow-y-auto overflow-x-hidden">
+                <MessageThreadFull />
+              </div>
             </div>
 
-            <div className={activeTab === "sessions" ? "block" : "hidden"}>
-              <SessionsView isActive={activeTab === "sessions"} />
-            </div>
-
-          </div>
-
-          {/* Right Sidebar - Chat */}
-          <div className="w-[400px] border-l bg-white flex flex-col">
-            <div className="flex-1 overflow-y-auto overflow-x-hidden">
-              <MessageThreadFull />
-            </div>
-          </div>
-
-        </main>
-      </div>
+          </main>
+        </div>
+      </TooltipProvider>
     </TamboProvider>
   );
 }
