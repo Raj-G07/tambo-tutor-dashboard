@@ -1,131 +1,86 @@
-# Tambo Template
+# Create Tambo App - Tutor AI Dashboard
 
-This is a starter NextJS app with Tambo hooked up to get your AI app development started quickly.
+This is a **Next.js + Supabase + Tambo** template designed to showcase a "Hybrid Architecture" where an AI assistant (powered by Tambo) works alongside a traditional UI.
 
-## Get Started
+## Tech Stack
 
-1. Run `npm create-tambo@latest my-tambo-app` for a new project
+- **Framework**: Next.js 14 (App Router)
+- **Database**: Supabase (PostgreSQL)
+- **AI Engine**: Tambo SDK (`@tambo-ai/react`, `@tambo-ai/typescript-sdk`)
+- **Styling**: Tailwind CSS, Shadcn UI
+- **Language**: TypeScript
 
-2. `npm install`
+## Project Overview
 
-3. `npx tambo init`
+This application is a **Tutor Dashboard** that allows users to manage Students, Courses, and Sessions. It demonstrates how to "teach" an AI about your application so it can perform actions and render UI components conversationally.
 
-- or rename `example.env.local` to `.env.local` and add your tambo API key you can get for free [here](https://tambo.co/dashboard).
+### Key Concepts
 
-4. Run `npm run dev` and go to `localhost:3000` to use the app!
+1.  **Hybrid Architecture**: Actions (like adding a student) can be performed via standard UI buttons OR by asking the AI. Both methods use the exact same underlying code.
+2.  **Generative UI**: The AI can decide to render rich React components (like tables or forms) in the chat stream instead of just text.
+3.  **Interactables**: Standard forms are wrapped to be usable by the AI, ensuring consistency across the app.
 
-## Customizing
+## Tambo Architecture
 
-### Change what components tambo can control
+The core integration logic resides in `src/lib/tambo.ts`. This file acts as the registry for the AI's capabilities.
 
-You can see how components are registered with tambo in `src/lib/tambo.ts`:
+### 1. Tools (Server Actions)
 
-```tsx
-export const components: TamboComponent[] = [
-  {
-    name: "Graph",
-    description:
-      "A component that renders various types of charts (bar, line, pie) using Recharts. Supports customizable data visualization with labels, datasets, and styling options.",
-    component: Graph,
-    propsSchema: graphSchema,
-  },
-  // Add more components here
-];
-```
+We expose standard Next.js Server Actions as **Tools** to the AI.
+-   **Definition**: `src/lib/tambo.ts` -> `tools` array.
+-   **Implementation**: `src/app/actions/tutor.ts`.
+-   **Example**: `getStudents`, `createStudent`, `updateSession`.
+-   **How it works**: When a user asks "Who are my students?", Tambo calls the `getStudents` tool, fetches data from Supabase, and uses the `transformToContent` function to format the result for the chat.
 
-You can install the graph component into any project with:
+### 2. Generative Components (Read-Only)
 
-```bash
-npx tambo add graph
-```
+We register UI components that the AI can render to display data.
+-   **Definition**: `src/lib/tambo.ts` -> `components` array.
+-   **Implementation**: `src/components/tutor-dashboard/`.
+-   **Example**: `StudentTable`, `SessionTimeline`.
+-   **How it works**: If the AI fetches a list of students, it can choose to render `<StudentTable students={...} />` in the chat instead of a text list.
 
-The example Graph component demonstrates several key features:
+### 3. Interactables (Write/Forms)
 
-- Different prop types (strings, arrays, enums, nested objects)
-- Multiple chart types (bar, line, pie)
-- Customizable styling (variants, sizes)
-- Optional configurations (title, legend, colors)
-- Data visualization capabilities
+We wrap interactive forms so the AI can trigger them.
+-   **Definition**: `src/lib/tambo.ts` -> `withInteractable`.
+-   **Implementation**: `src/components/tutor-dashboard/CreateStudentForm.tsx`.
+-   **Example**: `CreateStudentFormI`.
+-   **How it works**:
+    -   **User**: Clicks "Add Student" -> Opens `CreateStudentFormI`.
+    -   **AI**: User says "Add a student named Alice" -> AI renders `CreateStudentFormI` pre-filled with "Alice".
+    -   **State Sync**: The form uses `useTamboComponentState` to keep the AI aware of the user's input in real-time.
 
-Update the `components` array with any component(s) you want tambo to be able to use in a response!
+## Key Files Map
 
-You can find more information about the options [here](https://docs.tambo.co/concepts/generative-interfaces/generative-components)
+-   📄 **`src/lib/tambo.ts`**: **The Brain**. Registers all tools, components, and interactables.
+-   📄 **`src/app/actions/tutor.ts`**: **The Muscle**. Contains all business logic and database interactions.
+-   📄 **`src/app/chat/page.tsx`**: **The Body**. Sets up the `TamboProvider` and initializes the chat interface.
+-   📄 **`src/components/tutor-dashboard/*.tsx`**: **The Face**. The UI components used by both the Dashboard and the AI.
 
-### Add tools for tambo to use
+## Setup Instructions
 
-Tools are defined with `inputSchema` and `outputSchema`:
+1.  **Environment Setup**:
+    -   Rename `example.env.local` to `.env.local`.
+    -   Add your Tambo API Key: `NEXT_PUBLIC_TAMBO_API_KEY=...` (Get it from [tambo.co/dashboard](https://tambo.co/dashboard)).
+    -   Add your Supabase credentials: `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY`.
 
-```tsx
-export const tools: TamboTool[] = [
-  {
-    name: "globalPopulation",
-    description:
-      "A tool to get global population trends with optional year range filtering",
-    tool: getGlobalPopulationTrend,
-    inputSchema: z.object({
-      startYear: z.number().optional(),
-      endYear: z.number().optional(),
-    }),
-    outputSchema: z.array(
-      z.object({
-        year: z.number(),
-        population: z.number(),
-        growthRate: z.number(),
-      }),
-    ),
-  },
-];
-```
+2.  **Install Dependencies**:
+    ```bash
+    npm install
+    ```
 
-Find more information about tools [here.](https://docs.tambo.co/concepts/tools)
+3.  **Run Development Server**:
+    ```bash
+    npm run dev
+    ```
+    Visit `http://localhost:3000` to see the app.
 
-### The Magic of Tambo Requires the TamboProvider
+4.  **Tambo Init (Optional)**:
+    -   Run `npx tambo init` if you want to pull down the latest CLI tools or config.
 
-Make sure in the TamboProvider wrapped around your app:
+## Resources
 
-```tsx
-...
-<TamboProvider
-  apiKey={process.env.NEXT_PUBLIC_TAMBO_API_KEY!}
-  components={components} // Array of components to control
-  tools={tools} // Array of tools it can use
->
-  {children}
-</TamboProvider>
-```
-
-In this example we do this in the `Layout.tsx` file, but you can do it anywhere in your app that is a client component.
-
-### Voice input
-
-The template includes a `DictationButton` component using the `useTamboVoice` hook for speech-to-text input.
-
-### MCP (Model Context Protocol)
-
-The template includes MCP support for connecting to external tools and resources. You can use the MCP hooks from `@tambo-ai/react/mcp`:
-
-- `useTamboMcpPromptList` - List available prompts from MCP servers
-- `useTamboMcpPrompt` - Get a specific prompt
-- `useTamboMcpResourceList` - List available resources
-
-See `src/components/tambo/mcp-components.tsx` for example usage.
-
-### Change where component responses are shown
-
-The components used by tambo are shown alongside the message response from tambo within the chat thread, but you can have the result components show wherever you like by accessing the latest thread message's `renderedComponent` field:
-
-```tsx
-const { thread } = useTambo();
-const latestComponent =
-  thread?.messages[thread.messages.length - 1]?.renderedComponent;
-
-return (
-  <div>
-    {latestComponent && (
-      <div className="my-custom-wrapper">{latestComponent}</div>
-    )}
-  </div>
-);
-```
-
-For more detailed documentation, visit [Tambo's official docs](https://docs.tambo.co).
+-   [Tambo Documentation](https://docs.tambo.co)
+-   [Next.js Documentation](https://nextjs.org/docs)
+-   [Supabase Documentation](https://supabase.com/docs)
