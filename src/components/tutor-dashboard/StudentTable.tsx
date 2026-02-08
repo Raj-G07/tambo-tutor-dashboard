@@ -6,10 +6,9 @@ export const studentTableSchema = z.object({
   students: z.array(z.object({
     id: z.string(),
     full_name: z.string(),
-    email: z.string().nullable(),
-    grade_level: z.string().nullable(),
+    email: z.string(),
+    grade_level: z.string(),
     status: z.enum(['active', 'inactive', 'archived']),
-    risk_score: z.number(),
   })).describe('List of students to display'),
 })
 
@@ -27,7 +26,6 @@ export function StudentTable({ students = [] }: z.infer<typeof studentTableSchem
               <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Email</th>
               <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Grade</th>
               <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Status</th>
-              <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Risk Score</th>
             </tr>
           </thead>
           <tbody className="[&_tr:last-child]:border-0">
@@ -44,17 +42,6 @@ export function StudentTable({ students = [] }: z.infer<typeof studentTableSchem
                   }`}>
                     {student.status}
                   </span>
-                </td>
-                <td className="p-4 align-middle">
-                   <div className="flex items-center gap-2">
-                    <div className="h-2 w-full max-w-[60px] rounded-full bg-secondary">
-                        <div 
-                            className={`h-full rounded-full ${student.risk_score > 50 ? 'bg-red-500' : 'bg-green-500'}`} 
-                            style={{ width: `${student.risk_score}%` }} 
-                        />
-                    </div>
-                    <span className="text-xs text-muted-foreground">{student.risk_score}</span>
-                   </div>
                 </td>
               </tr>
             ))}

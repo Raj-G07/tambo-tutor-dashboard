@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import type { messageVariants } from "@/components/tambo/message";
 import {
   MessageInput,
@@ -89,14 +90,15 @@ export const MessageThreadFull = React.forwardRef<
   ];
 
   return (
-    <div className="flex h-full w-full">
+    <div className="flex h-full w-full relative">
       {/* Thread History Sidebar - rendered first if history is on the left */}
+
       {historyPosition === "left" && threadHistorySidebar}
 
       <ThreadContainer
         ref={mergedRef}
         disableSidebarSpacing
-        className={className}
+        className={cn("flex-1", className)}
         {...props}
       >
         <ScrollableMessageContainer className="p-4">

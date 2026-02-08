@@ -108,7 +108,7 @@ export function useCanvasDetection(
  * @returns true if the className contains "right", false otherwise
  */
 export function hasRightClass(className?: string): boolean {
-  return className ? /(?:^|\s)right(?:\s|$)/i.test(className) : false;
+  return className ? /(?:^|\s)right(?:\s|$)/i.test(className) : true;
 }
 
 /**

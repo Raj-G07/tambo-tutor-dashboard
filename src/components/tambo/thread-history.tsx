@@ -59,6 +59,8 @@ interface ThreadHistoryProps extends React.HTMLAttributes<HTMLDivElement> {
   onThreadChange?: () => void;
   children?: React.ReactNode;
   defaultCollapsed?: boolean;
+  isCollapsed?: boolean;
+  onCollapsedChange?: (collapsed: boolean) => void;
   position?: "left" | "right";
 }
 
@@ -75,7 +77,16 @@ const ThreadHistory = React.forwardRef<HTMLDivElement, ThreadHistoryProps>(
     ref,
   ) => {
     const [searchQuery, setSearchQuery] = React.useState("");
-    const [isCollapsed, setIsCollapsed] = React.useState(defaultCollapsed);
+    const [internalIsCollapsed, setInternalIsCollapsed] = React.useState(defaultCollapsed);
+    const isCollapsed = props.isCollapsed !== undefined ? props.isCollapsed : internalIsCollapsed;
+    const setIsCollapsed = (collapsed: boolean) => {
+      if (props.onCollapsedChange) {
+        props.onCollapsedChange(collapsed);
+      } else {
+        setInternalIsCollapsed(collapsed);
+      }
+    };
+
     const [shouldFocusSearch, setShouldFocusSearch] = React.useState(false);
 
     const { data: threads, isLoading, error, refetch } = useTamboThreadList();
@@ -143,12 +154,21 @@ const ThreadHistory = React.forwardRef<HTMLDivElement, ThreadHistoryProps>(
       <ThreadHistoryContext.Provider
         value={contextValue as ThreadHistoryContextValue}
       >
+        {!isCollapsed && (
+          <div
+            className="absolute inset-0 bg-black/10 z-40 transition-opacity duration-300"
+            onClick={() => setIsCollapsed(true)}
+          />
+        )}
         <div
           ref={ref}
           className={cn(
-            "border-flat bg-container h-full transition-all duration-300 flex-none",
+            "bg-container h-full transition-all duration-300",
             position === "left" ? "border-r" : "border-l",
-            isCollapsed ? "w-12" : "w-64",
+            isCollapsed
+              ? "relative flex-none w-12 shadow-sm"
+              : "absolute top-0 bottom-0 z-50 w-64 shadow-2xl",
+            position === "left" ? "left-0" : "right-0",
             className,
           )}
           {...props}
@@ -185,37 +205,32 @@ const ThreadHistoryHeader = React.forwardRef<
     <div
       ref={ref}
       className={cn(
-        "flex items-center mb-4 relative",
-        isCollapsed ? "p-1" : "p-1",
+        "flex items-center mb-4 relative min-h-8",
+        isCollapsed ? "justify-center" : "justify-between",
         className,
       )}
       {...props}
     >
-      <h2
-        className={cn(
-          "text-sm text-muted-foreground whitespace-nowrap ",
-          isCollapsed
-            ? "opacity-0 max-w-0 overflow-hidden "
-            : "opacity-100 max-w-none transition-all duration-300 delay-75",
-        )}
-      >
-        Tambo Conversations
-      </h2>
+      {!isCollapsed && (
+        <h2 className="text-sm font-semibold text-muted-foreground whitespace-nowrap overflow-hidden transition-all">
+          Tambo Conversations
+        </h2>
+      )}
       <button
         onClick={() => setIsCollapsed(!isCollapsed)}
         className={cn(
-          `bg-container p-1 hover:bg-backdrop transition-colors rounded-md cursor-pointer absolute flex items-center justify-center`,
-          position === "left" ? "right-1" : "left-0",
+          "bg-container p-1 hover:bg-backdrop transition-colors rounded-md cursor-pointer flex items-center justify-center",
+          !isCollapsed && "relative"
         )}
         aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
       >
         {isCollapsed ? (
-          <ArrowRightToLine
-            className={cn("h-4 w-4", position === "right" && "rotate-180")}
+          <ArrowLeftToLine
+            className={cn("h-4 w-4", position === "left" && "rotate-180")}
           />
         ) : (
-          <ArrowLeftToLine
-            className={cn("h-4 w-4", position === "right" && "rotate-180")}
+          <ArrowRightToLine
+            className={cn("h-4 w-4", position === "left" && "rotate-180")}
           />
         )}
       </button>

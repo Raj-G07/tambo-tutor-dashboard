@@ -9,7 +9,7 @@ export async function getStudents() {
     .from('students')
     .select('*')
     .order('created_at', { ascending: false })
-  
+
   if (error) {
     console.error('Error fetching students:', error)
     return []
@@ -70,7 +70,7 @@ export async function getRecentPayments() {
 export async function getMonthlyEarnings() {
   // Since we might not have the view created, allow fallback or raw query
   const supabase = createServerClient()
-  
+
   // Try fetching from view
   const { data, error } = await supabase
     .from('monthly_earnings' as any) // Cast as any if view type is tricky or just use raw query
@@ -84,7 +84,7 @@ export async function getMonthlyEarnings() {
       .select('amount, paid_at')
       .eq('status', 'paid')
       .not('paid_at', 'is', null)
-    
+
     if (!payments) return []
 
     // Simple aggregation
@@ -161,12 +161,12 @@ export async function createCourse(params: { title: string; description?: string
   return data
 }
 
-export async function createSession(params: { 
-  course_id: string; 
-  student_id: string; 
-  start_time: string; 
-  end_time: string; 
-  topic?: string 
+export async function createSession(params: {
+  course_id: string;
+  student_id: string;
+  start_time: string;
+  end_time: string;
+  topic?: string
 }) {
   const supabase = createServerClient()
   const { data, error } = await supabase
@@ -189,3 +189,131 @@ export async function createSession(params: {
   }
   return data
 }
+
+// -- UPDATE & DELETE ACTIONS --
+
+export async function updateStudent({
+  id,
+  patch,
+}: {
+  id: string
+  patch: Record<string, any>
+}) {
+  // Remove undefined only (keep nulls!)
+  const cleanedPatch = Object.fromEntries(
+    Object.entries(patch).filter(([, v]) => v !== undefined)
+  )
+
+  if (Object.keys(cleanedPatch).length === 0) {
+    throw new Error("No fields provided to update")
+  }
+
+  const supabase = createServerClient()
+
+  const { data, error } = await supabase
+    .from("students")
+    .update(cleanedPatch)
+    .eq("id", id)
+    .select()
+    .single()
+
+  if (error) {
+    throw new Error(`Failed to update student: ${error.message}`)
+  }
+
+  return data
+}
+
+
+
+export async function deleteStudent(id: string) {
+  const supabase = createServerClient()
+  const { error } = await supabase
+    .from('students')
+    .delete()
+    .eq('id', id)
+
+  if (error) {
+    console.error('Error deleting student:', error)
+    throw new Error('Failed to delete student')
+  }
+  return true
+}
+
+export async function updateCourse({ id, patch }: { id: string, patch: Record<string, any> }) {
+
+  const cleanedPatch = Object.fromEntries(
+    Object.entries(patch).filter(([, v]) => v !== undefined)
+  )
+
+  if (Object.keys(cleanedPatch).length === 0) {
+    throw new Error("No fields provided to update")
+  }
+
+  const supabase = createServerClient()
+  const { data, error } = await supabase
+    .from('courses')
+    .update(cleanedPatch)
+    .eq('id', id)
+    .select()
+    .single()
+
+  if (error) {
+    console.error('Error updating course:', error)
+    throw new Error('Failed to update course')
+  }
+  return data
+}
+
+export async function deleteCourse(id: string) {
+  const supabase = createServerClient()
+  const { error } = await supabase
+    .from('courses')
+    .delete()
+    .eq('id', id)
+
+  if (error) {
+    console.error('Error deleting course:', error)
+    throw new Error('Failed to delete course')
+  }
+  return true
+}
+
+export async function updateSession({ id, patch }: { id: string, patch: Record<string, any> }) {
+  const cleanedPatch = Object.fromEntries(
+    Object.entries(patch).filter(([, v]) => v !== undefined)
+  )
+
+  if (Object.keys(cleanedPatch).length === 0) {
+    throw new Error("No fields provided to update")
+  }
+
+  const supabase = createServerClient()
+  const { data, error } = await supabase
+    .from('sessions')
+    .update(cleanedPatch)
+    .eq('id', id)
+    .select()
+    .single()
+
+  if (error) {
+    console.error('Error updating session:', error)
+    throw new Error('Failed to update session')
+  }
+  return data
+}
+
+export async function deleteSession(id: string) {
+  const supabase = createServerClient()
+  const { error } = await supabase
+    .from('sessions')
+    .delete()
+    .eq('id', id)
+
+  if (error) {
+    console.error('Error deleting session:', error)
+    throw new Error('Failed to delete session')
+  }
+  return true
+}
+

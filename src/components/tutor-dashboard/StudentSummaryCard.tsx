@@ -18,7 +18,7 @@ export function StudentSummaryCard({ student }: z.infer<typeof studentSummaryCar
     <div className="rounded-xl border bg-card text-card-foreground shadow w-full max-w-sm">
       <div className="p-6 flex flex-col items-center text-center space-y-2">
         <div className="h-20 w-20 rounded-full bg-primary/10 flex items-center justify-center text-2xl font-bold text-primary mb-2">
-            {student.full_name.charAt(0)}
+            {student?.full_name?.charAt(0)}
         </div>
         <h3 className="font-semibold leading-none tracking-tight text-xl">{student.full_name}</h3>
         <p className="text-sm text-muted-foreground">{student.grade_level || 'No Grade Level'}</p>

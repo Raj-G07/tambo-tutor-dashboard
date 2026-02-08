@@ -13,6 +13,9 @@ export const courseOverviewTableSchema = z.object({
 })
 
 export function CourseOverviewTable({ courses }: z.infer<typeof courseOverviewTableSchema>) {
+  if (!courses || courses.length === 0) {
+    return <div className="p-4 text-center text-muted-foreground">No courses found.</div>
+  }
   return (
     <div className="rounded-md border">
       <div className="relative w-full overflow-auto">
