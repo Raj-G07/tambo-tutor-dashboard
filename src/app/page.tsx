@@ -105,7 +105,7 @@ export default function Home() {
               className="mb-4"
             />
           </a>
-          <h1 className="text-4xl text-center">tambo-ai chat template</h1>
+          <h1 className="text-4xl text-center">Tutor Dashboard</h1>
         </div>
 
         <div className="w-full space-y-8">
