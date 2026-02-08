@@ -215,7 +215,7 @@ export function CoursesView({ isActive }: { isActive: boolean }) {
                                         allowDecimals={false}
                                     />
                                     <RechartsTooltip
-                                        cursor={{ fill: 'rgba(241, 245, 249, 0.4)', radius: [8, 8, 0, 0] }}
+                                        cursor={{ fill: 'rgba(241, 245, 249, 0.4)', radius: 4 }}
                                         contentStyle={{
                                             borderRadius: '16px',
                                             border: '1px solid #f1f5f9',
