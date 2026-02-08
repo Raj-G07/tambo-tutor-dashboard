@@ -53,8 +53,8 @@ export const tools: TamboTool[] = [
       grade_level: z.string().nullable().describe("Grade level of the student"),
       status: z.enum(['active', 'inactive', 'archived']).describe("Status of the student"),
     })).describe('List of students'),
-    transformToContent: (students) =>
-      students.map((s) => ({
+    transformToContent: (students: any) =>
+      students.map((s: any) => ({
         key: s.id,
         type: "text",
         text: `👤 ${s.full_name} (${s.status}) — Notes: ${s.notes}`,
@@ -73,8 +73,8 @@ export const tools: TamboTool[] = [
       hourly_rate: z.number().describe("Hourly rate of the course"),
       student_count: z.number().optional().describe("Number of students enrolled in the course"),
     })).describe('List of courses'),
-    transformToContent: (courses) =>
-      courses.map((course) => ({
+    transformToContent: (courses: any) =>
+      courses.map((course: any) => ({
         key: course.id,
         type: "text",
         text: `📘 ${course.title} — $${course.hourly_rate} - ${course.description}`,
@@ -94,8 +94,8 @@ export const tools: TamboTool[] = [
       student: z.object({ full_name: z.string() }).nullable().describe("Student of the session"),
       course: z.object({ title: z.string() }).nullable().describe(""),
     })).describe('List of sessions'),
-    transformToContent: (sessions) =>
-      sessions.map((s) => ({
+    transformToContent: (sessions: any) =>
+      sessions.map((s: any) => ({
         key: s.id,
         type: "text",
         text: `🕒 ${s.course?.title ?? "Session"} with ${s.student?.full_name ?? "Unknown"
@@ -123,7 +123,7 @@ export const tools: TamboTool[] = [
       grade_level: z.string().describe("Grade level of the student"),
       status: z.enum(['active', 'inactive', 'archived']).describe("Status of the student"),
     }).describe('Updated student'),
-    transformToContent: (student) => [{
+    transformToContent: (student: any) => [{
       type: "text",
       text: `👤 ${student.full_name} (${student.status}) — Notes: ${student.notes}`,
     }]
@@ -181,10 +181,10 @@ export const tools: TamboTool[] = [
     outputSchema: z.object({
       id: z.string().describe("UUID of the student"),
     }).describe('Deleted student'),
-    transformToContent: (student) => [{
+    transformToContent: (student: any) => [{
       type: "text",
       text: `👤 ${student.full_name} (${student.status}) — Notes: ${student.notes}`,
-    }]  
+    }]
   },
   {
     name: "deleteCourseConfirm",
@@ -196,7 +196,7 @@ export const tools: TamboTool[] = [
     outputSchema: z.object({
       id: z.string().describe("UUID of the course"),
     }).describe('Deleted course'),
-    transformToContent: (course) => [{
+    transformToContent: (course: any) => [{
       type: "text",
       text: `📘 ${course.title} — $${course.hourly_rate} - ${course.description}`,
     }]
@@ -211,13 +211,13 @@ export const tools: TamboTool[] = [
     outputSchema: z.object({
       id: z.string().describe("UUID of the session"),
     }).describe('Deleted session'),
-    transformToContent: (session) => [{
+    transformToContent: (session: any) => [{
       type: "text",
       text: `🕒 ${session.course?.title ?? "Session"} with ${session.student?.full_name ?? "Unknown"
         } — ${session.status}`,
     }]
-  } ,
-  
+  },
+
 ];
 
 /**
